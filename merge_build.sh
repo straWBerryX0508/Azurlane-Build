@@ -250,12 +250,17 @@ DELETE_ORGINAL_APK() {
 # 合入MOD
 PATCH_APK() {
     echo "正在合入MOD补丁..."
-    cp -r "${DOWNLOAD_DIR}/JMBQ/assets/." "${DOWNLOAD_DIR}/DECODE_Output/assets/"
-    if [ $? -ne 0 ]; then
-        echo "错误: 复制资源文件失败！"
-        exit 1
+    local ASSETS_DIR=$(find "${DOWNLOAD_DIR}/JMBQ" -type d -name "assets" 2>/dev/null | head -1)
+    if [ -n "${ASSETS_DIR}" ]; then
+        cp -r "${ASSETS_DIR}/." "${DOWNLOAD_DIR}/DECODE_Output/assets/"
+        if [ $? -ne 0 ]; then
+            echo "错误: 复制资源文件失败！"
+            exit 1
+        fi
+        echo "复制资源文件完成"
+    else
+        echo "警告: MOD补丁中未找到assets目录，跳过"
     fi
-    echo "复制资源文件完成"
 
     local MAX_CLASS_NUM=$(find "${DOWNLOAD_DIR}/DECODE_Output/" -maxdepth 1 -type d -name "smali_classes*" 2>/dev/null | sed 's/.*smali_classes//' | sort -n | tail -1)
     MAX_CLASS_NUM=${MAX_CLASS_NUM:-3}
